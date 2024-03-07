@@ -1,2 +1,3 @@
 ﻿  MyGame.cpp
-  game.vcxproj -> C:\Users\benni\Documents\Tutorial1 - Getting started\Debug\GTECgame.exe
+H:\Data\GitHub\GTEC-3D-PROJECT\game\MyGame.cpp(274,22): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
+  game.vcxproj -> H:\Data\GitHub\GTEC-3D-PROJECT\Debug\GTECgame.exe

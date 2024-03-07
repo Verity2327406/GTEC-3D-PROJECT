@@ -14,14 +14,23 @@ public:
 
 	// Variables
 	int score;
+	int level;
+	int damage = 30; // Damage of the bullets
+	string curWeapon = "basic";
 	CVector mousePos;
+
+	int levelMax = 25;
+	int spawned = 0; // How many have been spawned since the start of the level
+
+	int debugMode = false;
+	bool textSpawned;
 
 	// Models
 	CModel box;
 	CModel player;
 	
 	// Model Lists
-	CModelList boxList;
+	CModelList enemyList;
 	CModelList shotList;
 	
 	// game world floor
@@ -38,6 +47,8 @@ public:
    void PlayerControl();
    void BoxControl();
    void CameraControl(CGraphics* g);
+   void CollisionManager();
+   void LevelManager();
 	
    // ---------------------Event Handling --------------------------
 

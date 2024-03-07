@@ -46,12 +46,37 @@ void CMyGame::OnUpdate()
 	// --- updating models ----
 	player.Update(t);
 	shotList.Update(t);
-	boxList.Update(t);
+	enemyList.Update(t);
 	
 	
     // My Control Functions
 	PlayerControl();
 	BoxControl();
+	CollisionManager();
+	LevelManager();
+
+	// Removed deleted
+	shotList.delete_if(deleted);
+	enemyList.delete_if(deleted);
+}
+
+void CMyGame::CollisionManager() {
+#pragma region Basic Bullets
+	if (curWeapon == "basic") {
+		for (CModel* shot : shotList) {
+			for (CModel* enemy : enemyList) {
+				if (shot->HitTest(enemy)) {
+					// Change enemy health
+					enemy->SetHealth(enemy->GetHealth() - damage);
+					// Delete the shot
+					shot->Delete();
+					// Return so we dont hit two enemies with one bullet!
+					return;
+				}
+			}
+		}
+	}
+#pragma endregion
 }
 
 void CMyGame::PlayerControl()
@@ -76,6 +101,7 @@ void CMyGame::PlayerControl()
 
 	player.SetRotationToPoint(mousePos.x, mousePos.z);
 
+#pragma region Player Shoot
 	// Define fire rate (shots per second)
 	float fireRate = 10; // Example: 2 shots per second
 	// Calculate time interval between shots based on fire rate
@@ -97,24 +123,83 @@ void CMyGame::PlayerControl()
 		shot->SetDirectionV(player.GetRotationV());
 		shot->SetRotationV(player.GetRotationV());
 		shot->SetSpeed(5000);
+		shot->SetColor(255, 255, 0);
+		shot->Die(1000);
 		shotList.push_back(shot);
+	}
+#pragma endregion
+
+	if (player.GetHealth() <= 0) {
+		GameOver();
 	}
 }
 
 void CMyGame::BoxControl()
 {
-	for (CModel* box : boxList) {
-		box->MoveTo(player.GetPositionV().x, player.GetPositionV().z, 100);
-		box->SetRotationV(player.GetPositionV());
+#pragma region Movement
+		for (CModel* box : enemyList) {
+			// Movement
+			for (CModel* otherBox : enemyList) {
+				if ((box != otherBox && box->HitTestFront(otherBox)) || box->HitTestFront(&player)) {
+					box->SetSpeed(0);
+					break; // Exit the inner loop once a collision is detected
+				}
+				else {
+					box->MoveTo(player.GetPositionV().x, player.GetPositionV().z, 100);
+					box->SetRotationV(player.GetPositionV());
+				}
+			}
+#pragma endregion
+
+#pragma region CheckIfDead
+		if (box->GetHealth() <= 0)
+			box->Delete();
+#pragma endregion
+
+	}
+}
+
+void CMyGame::LevelManager() {
+	if (spawned < levelMax) {
+		if (enemyList.size() < 15) {
+			if (rand() % 60 == 0) {
+				CModel* newBox = new CModel(box);
+				newBox->SetColor(255, 1, 1);
+				newBox->SetPosition(float(750 - rand()%1500), 50, float(750 - rand() % 1500));
+				enemyList.push_back(newBox);
+				spawned++;
+			}
+		}
+	}
+	else if(spawned >= levelMax && enemyList.size() == 0) {
+		level++;
+		OnStartLevel(level);
 	}
 }
 
 
 void CMyGame::OnDraw(CGraphics* g)
 {
-	// draw score
-	font.SetColor(CColor::Red()); font.DrawNumber(10,Height-50, score);
-	
+#pragma region DEBUG
+	if (debugMode) {
+		font.SetColor(CColor::Red()); font.SetSize(25); font.DrawTextW(10, Height - 25, "DEBUG MODE");
+		// draw bullets in world
+		font.SetColor(CColor::Red()); font.SetSize(25); font.DrawTextW(10, Height - 50, "Bullets In World: " + to_string(shotList.size()));
+
+		//// draw enemies in world
+		font.SetColor(CColor::Red()); font.SetSize(25); font.DrawText(10, Height - 75, "Enemies In World: " + to_string(enemyList.size()));
+
+		//// draw current level in world
+		font.SetColor(CColor::Red()); font.SetSize(25); font.DrawText(10, Height - 100, "Current Level: " + to_string(level));
+
+		//// draw total spawned in world
+		font.SetColor(CColor::Red()); font.SetSize(25); font.DrawText(10, Height - 125, "Spawned Since Level Start: " + to_string(spawned));
+
+		//// draw total left to spawn in world
+		font.SetColor(CColor::Red()); font.SetSize(25); font.DrawText(10, Height - 150, "Enemies till level " + to_string(level + 1) + " : " + to_string(levelMax - spawned));
+	}
+#pragma endregion
+
 	// draw GAME OVER if game over
    	if (IsGameOver())
    	{
@@ -132,7 +217,7 @@ void CMyGame::OnRender3D(CGraphics* g)
 	player.Draw(g);
 
 	shotList.Draw(g);
-	boxList.Draw(g);
+	enemyList.Draw(g);
 	
 
 	//ShowBoundingBoxes(true);
@@ -173,15 +258,20 @@ void CMyGame::OnDisplayMenu()
 void CMyGame::OnStartGame()
 {
 	score = 0;
-	boxList.delete_all();
+	level = 1;
+	enemyList.delete_all();
+	shotList.delete_all();
 	floor.SetSize(1500, 1500);
 	player.SetSize(100, 100, 100);
 	player.SetPosition(0, 50, 0);
+	OnStartLevel(level);
 }
 
 void CMyGame::OnStartLevel(int level)
 {
-	
+	spawned = 0;
+	player.SetHealth(100);
+	levelMax = levelMax * (level * 0.75);
 }
 
 
@@ -212,12 +302,9 @@ void CMyGame::OnKeyDown(SDLKey sym, SDLMod mod, Uint16 unicode)
 	if (sym == SDLK_F2) NewGame();
 	
 	//  add a cloned box
-	if (sym == SDLK_LCTRL)
+	if (sym == SDLK_F3)
 	{
-		CModel* newBox = new CModel(box);
-		newBox->SetColor(255, 1, 1);
-		newBox->SetPosition(0, 50, 0);
-		boxList.push_back(newBox);
+		debugMode = ~debugMode;
 	}
 }
 
