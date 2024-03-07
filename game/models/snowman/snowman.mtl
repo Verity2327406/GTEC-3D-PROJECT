@@ -1,0 +1,26 @@
+# Material file for snowman1.obj
+
+newmtl orange
+	Ns 0
+	d 1
+	illum 2
+	Kd 0.78 0.24 0.0
+	Ks 0.0 0.0 0.0
+	Ka 0.2 0.2 0.2
+
+newmtl green
+	Ns 0
+	d 1
+	illum 2
+	Kd 0.0 0.64 0.0
+	Ks 0.0 0.0 0.0
+	Ka 0.2 0.2 0.2
+
+newmtl blue
+	Ns 0
+	d 1
+	illum 2
+	Kd 0.0 0.0 0.8
+	Ks 0.0 0.0 0.0
+	Ka 0.2 0.2 0.2
+
