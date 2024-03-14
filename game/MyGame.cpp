@@ -29,9 +29,12 @@ void CMyGame::OnInitialize()
 	box.LoadModel("box/box.obj");
 	box.SetScale(2.0f);
 
+
+
 	// show floor grid
 	floor.ShowGrid(true);
-
+	floor.LoadTexture("sand.bmp");
+	floor.SetTiling(true);
 	//ShowBoundingBoxes(true);	
 }
 
@@ -51,7 +54,7 @@ void CMyGame::OnUpdate()
 	
     // My Control Functions
 	PlayerControl();
-	BoxControl();
+	EnemyControl();
 	CollisionManager();
 	LevelManager();
 
@@ -134,7 +137,7 @@ void CMyGame::PlayerControl()
 	}
 }
 
-void CMyGame::BoxControl()
+void CMyGame::EnemyControl()
 {
 #pragma region Movement
 		for (CModel* box : enemyList) {
@@ -152,8 +155,10 @@ void CMyGame::BoxControl()
 #pragma endregion
 
 #pragma region CheckIfDead
-		if (box->GetHealth() <= 0)
-			box->Delete();
+			if (box->GetHealth() <= 0) {
+				score += 100;
+				box->Delete();
+			}
 #pragma endregion
 
 	}
@@ -199,6 +204,8 @@ void CMyGame::OnDraw(CGraphics* g)
 		font.SetColor(CColor::Red()); font.SetSize(25); font.DrawText(10, Height - 150, "Enemies till level " + to_string(level + 1) + " : " + to_string(levelMax - spawned));
 	}
 #pragma endregion
+
+	font.SetColor(CColor::White()); font.SetSize(25); font.DrawTextW(Width - 400, Height - 25, "Score: " + to_string(score));
 
 	// draw GAME OVER if game over
    	if (IsGameOver())
@@ -261,7 +268,7 @@ void CMyGame::OnStartGame()
 	level = 1;
 	enemyList.delete_all();
 	shotList.delete_all();
-	floor.SetSize(1500, 1500);
+	floor.SetSize(2000, 2000);
 	player.SetSize(100, 100, 100);
 	player.SetPosition(0, 50, 0);
 	OnStartLevel(level);

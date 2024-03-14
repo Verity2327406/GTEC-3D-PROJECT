@@ -27,6 +27,7 @@ public:
 
 	// Models
 	CModel box;
+	CModel sand;
 	CModel player;
 	
 	// Model Lists
@@ -45,7 +46,7 @@ public:
 	// -----   Add you member functions here ------
    
    void PlayerControl();
-   void BoxControl();
+   void EnemyControl();
    void CameraControl(CGraphics* g);
    void CollisionManager();
    void LevelManager();
