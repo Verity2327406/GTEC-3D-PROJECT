@@ -42,6 +42,12 @@ public:
 	CFont font;
 
 	// Sound
+
+	// Positions
+	CVector north = CVector(0, 0, -1000);
+	CVector south = CVector(0, 0, 1000);
+	CVector west = CVector(-1000, 0, 0);
+	CVector east = CVector(1000, 0, 0);
 	
 
 	// -----   Add you member functions here ------

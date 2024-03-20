@@ -30,7 +30,7 @@ void CMyGame::OnInitialize()
 	box.SetScale(2.0f);
 
 	gemTest.LoadModel("gemtest/gem.obj");
-	gemTest.SetScale(50.0f);
+	gemTest.SetScale(40.0f);
 
 
 
@@ -48,6 +48,9 @@ void CMyGame::OnUpdate()
 	if (IsMenuMode() || IsGameOver()) return;
 
 	long t = GetTime();
+
+	if (player.GetPositionV().DistanceXZ(north) <= 100)
+		cout << "At North";
 
 	// --- updating models ----
 	player.Update(t);
@@ -182,6 +185,13 @@ void CMyGame::LevelManager() {
 	}
 	else if(spawned >= levelMax && enemyList.size() == 0) {
 		level++;
+
+		// Choose one of four directions (North, East, South, West) on the map
+
+		// Drop gems on the ground for score!!
+
+		// Randomise rooms (loot rooms etc)
+
 		OnStartLevel(level);
 	}
 }
@@ -195,17 +205,20 @@ void CMyGame::OnDraw(CGraphics* g)
 		// draw bullets in world
 		font.SetColor(CColor::Red()); font.SetSize(25); font.DrawTextW(10, Height - 50, "Bullets In World: " + to_string(shotList.size()));
 
-		//// draw enemies in world
+		// draw enemies in world
 		font.SetColor(CColor::Red()); font.SetSize(25); font.DrawText(10, Height - 75, "Enemies In World: " + to_string(enemyList.size()));
 
-		//// draw current level in world
+		// draw current level in world
 		font.SetColor(CColor::Red()); font.SetSize(25); font.DrawText(10, Height - 100, "Current Level: " + to_string(level));
 
-		//// draw total spawned in world
+		// draw total spawned in world
 		font.SetColor(CColor::Red()); font.SetSize(25); font.DrawText(10, Height - 125, "Spawned Since Level Start: " + to_string(spawned));
 
-		//// draw total left to spawn in world
+		// draw total left to spawn in world
 		font.SetColor(CColor::Red()); font.SetSize(25); font.DrawText(10, Height - 150, "Enemies till level " + to_string(level + 1) + " : " + to_string(levelMax - spawned));
+
+		// print the player X and Z positions in the console
+		cout << player.GetPositionV().x << " " << player.GetPositionV().z << endl;
 	}
 #pragma endregion
 
@@ -277,6 +290,7 @@ void CMyGame::OnStartGame()
 	player.SetSize(100, 100, 100);
 	player.SetPosition(0, 50, 0);
 	gemTest.SetPosition(0, 70, 0);
+	gemTest.SetRotation(0, 10, 45);
 	OnStartLevel(level);
 }
 
