@@ -29,8 +29,8 @@ void CMyGame::OnInitialize()
 	box.LoadModel("box/box.obj");
 	box.SetScale(2.0f);
 
-	gemTest.LoadModel("gemtest/gem.obj");
-	gemTest.SetScale(40.0f);
+	gem.LoadModel("gemtest/gem.obj");
+	gem.SetScale(40.0f);
 
 
 
@@ -49,25 +49,24 @@ void CMyGame::OnUpdate()
 
 	long t = GetTime();
 
-	if (player.GetPositionV().DistanceXZ(north) <= 100)
-		cout << "At North";
-
 	// --- updating models ----
 	player.Update(t);
 	shotList.Update(t);
 	enemyList.Update(t);
-	gemTest.Update(t);
+	gemList.Update(t);
 	
 	
     // My Control Functions
 	PlayerControl();
 	EnemyControl();
+	GemControl();
 	CollisionManager();
 	LevelManager();
 
 	// Removed deleted
 	shotList.delete_if(deleted);
 	enemyList.delete_if(deleted);
+	gemList.delete_if(deleted);
 }
 
 void CMyGame::CollisionManager() {
@@ -84,6 +83,15 @@ void CMyGame::CollisionManager() {
 					return;
 				}
 			}
+		}
+	}
+#pragma endregion
+
+#pragma region Gems
+	for (CModel* gem : gemList) {
+		if (gem->HitTest(&player)) {
+			gem->Delete();
+			score += 250;
 		}
 	}
 #pragma endregion
@@ -171,6 +179,22 @@ void CMyGame::EnemyControl()
 	}
 }
 
+void CMyGame::GemControl() 
+{
+#pragma region Falling
+	for (CModel* gem : gemList) {
+		if (gem->GetPositionV().GetY() > 50) {
+			float newY = gem->GetPositionV().GetY() - gravity * GetTime();
+
+			gem->SetPosition(gem->GetPositionV().GetX(), newY, gem->GetPositionV().GetZ());
+		}
+		else {
+			gem->SetPosition(gem->GetPositionV().GetX(), 50, gem->GetPositionV().GetZ());
+		}
+	}
+#pragma endregion
+}
+
 void CMyGame::LevelManager() {
 	if (spawned < levelMax) {
 		if (enemyList.size() < 15) {
@@ -184,15 +208,47 @@ void CMyGame::LevelManager() {
 		}
 	}
 	else if(spawned >= levelMax && enemyList.size() == 0) {
-		level++;
-
-		// Choose one of four directions (North, East, South, West) on the map
+		// Variables
+		CVector playerPos = player.GetPositionV();
+		int room;
+		int gemAmount = rand() % 15;
 
 		// Drop gems on the ground for score!!
+		if (!spawnedGems) {
+			for (int i = 0; i < gemAmount; i++) {
+				CModel* newGem = new CModel(gem);
+				newGem->SetPosition(float(750 - rand() % 1500), (float)(150 + rand() % 300), float(750 - rand() % 1500));
+				gemList.push_back(newGem);
+			}
+			spawnedGems = true;
+
+			if(debugMode)
+				cout << "Spawned " << gemAmount << " gems." << endl;
+		}
 
 		// Randomise rooms (loot rooms etc)
 
-		OnStartLevel(level);
+		// Choose one of four directions (North, East, South, West) on the map
+		if (playerPos.DistanceXZ(north) <= 50) {
+			room = 0;
+			level++;
+			OnStartLevel(level);
+		}
+		else if (playerPos.DistanceXZ(east) <= 50) {
+			room = 1;
+			level++;
+			OnStartLevel(level);
+		}
+		else if (playerPos.DistanceXZ(south) <= 50) {
+			room = 2;
+			level++;
+			OnStartLevel(level);
+		}
+		else if (playerPos.DistanceXZ(west) <= 50) {
+			room = 3;
+			level++;
+			OnStartLevel(level);
+		}
 	}
 }
 
@@ -238,11 +294,11 @@ void CMyGame::OnRender3D(CGraphics* g)
 
 	// ------- Draw your 3D Models here ----------
 	floor.Draw(g);
-	player.Draw(g);
-	gemTest.Draw(g);
+	player.Draw(g); 
 
 	shotList.Draw(g);
 	enemyList.Draw(g);
+	gemList.Draw(g);
 	
 
 	//ShowBoundingBoxes(true);
@@ -289,16 +345,22 @@ void CMyGame::OnStartGame()
 	floor.SetSize(2000, 2000);
 	player.SetSize(100, 100, 100);
 	player.SetPosition(0, 50, 0);
-	gemTest.SetPosition(0, 70, 0);
-	gemTest.SetRotation(0, 10, 45);
+	gem.SetPosition(0, 70, 0);
+	gem.SetRotation(0, 10, 45);
 	OnStartLevel(level);
 }
 
 void CMyGame::OnStartLevel(int level)
 {
 	spawned = 0;
+	spawnedGems = false;
+
+	for (CModel* gem : gemList)
+		gem->Delete();
+
 	player.SetHealth(100);
 	levelMax = levelMax * (level * 0.75);
+	player.SetPosition(0, 50, 0);
 }
 
 

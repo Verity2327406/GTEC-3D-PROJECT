@@ -15,12 +15,14 @@ public:
 	// Variables
 	int score;
 	int level;
+	float gravity = 0.0015f; // Its gravity
 	int damage = 30; // Damage of the bullets
 	string curWeapon = "basic";
 	CVector mousePos;
 
 	int levelMax = 25;
 	int spawned = 0; // How many have been spawned since the start of the level
+	bool spawnedGems = false; // False if gems havent been spawned yet.
 
 	int debugMode = false;
 	bool textSpawned;
@@ -29,10 +31,11 @@ public:
 	CModel box;
 	CModel sand;
 	CModel player;
-	CModel gemTest;
+	CModel gem;
 	
 	// Model Lists
 	CModelList enemyList;
+	CModelList gemList;;
 	CModelList shotList;
 	
 	// game world floor
@@ -54,6 +57,7 @@ public:
    
    void PlayerControl();
    void EnemyControl();
+   void GemControl();
    void CameraControl(CGraphics* g);
    void CollisionManager();
    void LevelManager();
