@@ -29,6 +29,7 @@ public:
 	CModel box;
 	CModel sand;
 	CModel player;
+	CModel gemTest;
 	
 	// Model Lists
 	CModelList enemyList;

@@ -29,6 +29,9 @@ void CMyGame::OnInitialize()
 	box.LoadModel("box/box.obj");
 	box.SetScale(2.0f);
 
+	gemTest.LoadModel("gemtest/gem.obj");
+	gemTest.SetScale(50.0f);
+
 
 
 	// show floor grid
@@ -50,6 +53,7 @@ void CMyGame::OnUpdate()
 	player.Update(t);
 	shotList.Update(t);
 	enemyList.Update(t);
+	gemTest.Update(t);
 	
 	
     // My Control Functions
@@ -222,6 +226,7 @@ void CMyGame::OnRender3D(CGraphics* g)
 	// ------- Draw your 3D Models here ----------
 	floor.Draw(g);
 	player.Draw(g);
+	gemTest.Draw(g);
 
 	shotList.Draw(g);
 	enemyList.Draw(g);
@@ -271,6 +276,7 @@ void CMyGame::OnStartGame()
 	floor.SetSize(2000, 2000);
 	player.SetSize(100, 100, 100);
 	player.SetPosition(0, 50, 0);
+	gemTest.SetPosition(0, 70, 0);
 	OnStartLevel(level);
 }
 
