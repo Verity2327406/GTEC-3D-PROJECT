@@ -23,6 +23,7 @@ public:
 	int levelMax = 25;
 	int spawned = 0; // How many have been spawned since the start of the level
 	bool spawnedGems = false; // False if gems havent been spawned yet.
+	bool isRoundOver = false; // False if round is still ongoing
 
 	int debugMode = false;
 	bool textSpawned;

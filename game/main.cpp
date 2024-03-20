@@ -13,7 +13,7 @@ CGameApp app;
 int main(int argc, char* argv[])
 {
 	
-	app.OpenWindow(1000, 700, "Tutorial 1 - Getting Started");
+	app.OpenWindow(1000, 700, "Scuffed Ops Arcade");
     //app.OpenFullScreen();
 
 	app.Run(&game);

@@ -212,6 +212,7 @@ void CMyGame::LevelManager() {
 		CVector playerPos = player.GetPositionV();
 		int room;
 		int gemAmount = rand() % 15;
+		isRoundOver = true;
 
 		// Drop gems on the ground for score!!
 		if (!spawnedGems) {
@@ -279,6 +280,11 @@ void CMyGame::OnDraw(CGraphics* g)
 #pragma endregion
 
 	font.SetColor(CColor::White()); font.SetSize(25); font.DrawTextW(Width - 400, Height - 25, "Score: " + to_string(score));
+
+	if (isRoundOver)
+	{
+		font.SetColor((CColor::Red())); font.SetSize(30); font.DrawTextW(Width - 650, Height - (Height / 2), "Round " + to_string(level) + " is Complete");
+	}
 
 	// draw GAME OVER if game over
    	if (IsGameOver())
@@ -354,6 +360,7 @@ void CMyGame::OnStartLevel(int level)
 {
 	spawned = 0;
 	spawnedGems = false;
+	isRoundOver = false;
 
 	for (CModel* gem : gemList)
 		gem->Delete();
